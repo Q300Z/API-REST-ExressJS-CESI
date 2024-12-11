@@ -1,10 +1,5 @@
-import { Router } from 'express';
-import {
-    getAllUsers,
-    getUserById,
-    updateUser,
-    deleteUser,
-} from '../controllers/user.controller';
+import {Router} from 'express';
+import {deleteUser, getAllUsers, getUserById, updateUser,} from '../controllers/user.controller';
 import {register} from "../controllers/auth.controller";
 
 const router = Router();

@@ -1,6 +1,6 @@
 export interface Article {
-    id: number;
-    userId: number;
+    id: string;
+    userId: string;
     titre: string;
     contenu: string;
 }

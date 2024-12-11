@@ -1,11 +1,11 @@
-import { Router } from 'express';
+import {Router} from 'express';
 import {
     createArticle,
-    getAllArticles,
-    getArticlesByUserId,
-    getArticleById,
-    updateArticle,
     deleteArticle,
+    getAllArticles,
+    getArticleById,
+    getArticlesByUserId,
+    updateArticle,
 } from '../controllers/article.controller';
 
 const router = Router();

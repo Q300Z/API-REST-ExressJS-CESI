@@ -1,49 +1,72 @@
-import { Request, Response } from 'express';
-import { users, User } from '../models/user.model';
+import {Request, Response} from 'express';
+import prisma from '../utils/prisma';
+
 
 // READ: Récupérer tous les utilisateurs
-export const getAllUsers = (req: Request, res: Response): void => {
-    res.json(users);
+export const getAllUsers = async (_req: Request, res: Response): Promise<void> => {
+    try {
+        const users = await prisma.user.findMany({
+            include: {Article: true},
+        });
+        res.json(users);
+    } catch (error: any) {
+        res.status(500).json({error: 'Erreur lors de la récupération des utilisateurs', details: error.message});
+    }
 };
 
 // READ: Récupérer un utilisateur par ID
-export const getUserById = (req: Request, res: Response): void => {
-    const id = parseInt(req.params.id);
-    const user = users.find((u) => u.id === id);
+export const getUserById = async (req: Request, res: Response): Promise<void> => {
+    const id = req.params.id;
 
-    if (!user) {
-        res.status(404).json({ error: 'Utilisateur non trouvé' });
-        return;
+    try {
+        const user = await prisma.user.findUnique({
+            where: {id},
+            include: {Article: true},
+        });
+        if (!user) {
+            res.status(404).json({error: 'Utilisateur non trouvé'});
+            return;
+        }
+        res.json(user);
+    } catch (error: any) {
+        res.status(500).json({error: 'Erreur lors de la récupération de l\'utilisateur', details: error.message});
     }
-
-    res.json({data:user});
 };
 
-// UPDATE: Modifier un utilisateur par ID
-export const updateUser = (req: Request, res: Response): void => {
-    const id = parseInt(req.params.id);
-    const { nom, prenom } = req.body;
+// UPDATE: Modifier un utilisateur
+export const updateUser = async (req: Request, res: Response): Promise<void> => {
+    const id = req.params.id;
+    const {nom, prenom, password} = req.body;
 
-    const userIndex = users.findIndex((u) => u.id === id);
-    if (userIndex === -1) {
-        res.status(404).json({ error: 'Utilisateur non trouvé' });
-        return;
+    try {
+        const updatedUser = await prisma.user.update({
+            where: {id},
+            data: {nom, prenom, password},
+        });
+        res.json({message: 'Utilisateur mis à jour avec succès', data: updatedUser});
+    } catch (error: any) {
+        if (error.code === 'P2025') {
+            res.status(404).json({error: 'Utilisateur non trouvé'});
+        } else {
+            res.status(500).json({error: 'Erreur lors de la mise à jour de l\'utilisateur', details: error.message});
+        }
     }
-
-    users[userIndex] = { ...users[userIndex], nom, prenom };
-    res.json({data:users[userIndex]});
 };
 
-// DELETE: Supprimer un utilisateur par ID
-export const deleteUser = (req: Request, res: Response): void => {
-    const id = parseInt(req.params.id);
+// DELETE: Supprimer un utilisateur
+export const deleteUser = async (req: Request, res: Response): Promise<void> => {
+    const id = req.params.id;
 
-    const userIndex = users.findIndex((u) => u.id === id);
-    if (userIndex === -1) {
-        res.status(404).json({ error: 'Utilisateur non trouvé' });
-        return;
+    try {
+        await prisma.user.delete({
+            where: {id},
+        });
+        res.status(204).send();
+    } catch (error: any) {
+        if (error.code === 'P2025') {
+            res.status(404).json({error: 'Utilisateur non trouvé'});
+        } else {
+            res.status(500).json({error: 'Erreur lors de la suppression de l\'utilisateur', details: error.message});
+        }
     }
-
-    users.splice(userIndex, 1);
-    res.status(204).send({message:"Utilisateur supprimé avec succès"});
 };
