@@ -3,21 +3,21 @@ import jwt from 'jsonwebtoken';
 import prisma from '../utils/prisma';
 import bcrypt from 'bcryptjs';
 
-const SECRET_KEY = process.env.SECRET_KEY || 'your_secret_key'; // Utilise une clé plus sécurisée et stockée dans les variables d'environnement
+const SECRET_KEY = process.env.SECRET_KEY || 'your_secret_key'; // Veillez à définir une clé sécurisée dans vos variables d'environnement
 
 // Inscription
 export const register = async (req: Request, res: Response): Promise<void> => {
-    const {nom, prenom, password} = req.body;
+    const {lastname, firstname, email, password,dateOfBirth} = req.body;
 
-    if (!nom || !prenom || !password) {
-        res.status(400).json({error: 'Tous les champs sont requis'});
+    if (!lastname || !firstname || !email || !password||!dateOfBirth) {
+        res.status(400).json({error: 'Tous les champs (lastname, firstname, email, password, dateOfBirth) sont requis.'});
         return;
     }
 
     try {
-        const existingUser = await prisma.user.findUnique({where: {nom}});
+        const existingUser = await prisma.user.findUnique({where: {email}});
         if (existingUser) {
-            res.status(401).json({error: 'Utilisateur déjà existant'});
+            res.status(409).json({error: 'Un utilisateur avec cet email existe déjà.'});
             return;
         }
 
@@ -25,49 +25,64 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
         const newUser = await prisma.user.create({
             data: {
-                nom,
-                prenom,
+                lastname,
+                firstname,
+                email,
+                dateOfBirth,
                 password: hashedPassword,
             },
         });
 
-        res.status(201).json({message: 'Utilisateur créé', data: newUser});
+        res.status(201).json({message: 'Utilisateur créé avec succès.', data: {id: newUser.id, email: newUser.email,password}});
     } catch (error: any) {
-        res.status(500).json({error: "Erreur lors de l'inscription", details: error.message});
+        res.status(500).json({error: "Erreur lors de l'inscription.", details: error.message});
     }
 };
 
 // Connexion
 export const login = async (req: Request, res: Response): Promise<void> => {
-    const {nom, password} = req.body;
+    const {email, password} = req.body;
 
-    if (!nom || !password) {
-        res.status(400).json({error: 'Nom et mot de passe sont requis'});
+    if (!email || !password) {
+        res.status(400).json({error: 'Email et mot de passe sont requis.'});
         return;
     }
 
     try {
-        const user = await prisma.user.findUnique({where: {nom}});
+        const user = await prisma.user.findUnique({where: {email}});
 
         if (!user) {
-            res.status(401).json({error: 'Utilisateur non trouvé'});
+            res.status(401).json({error: 'Utilisateur non trouvé.'});
             return;
         }
 
         const passwordIsValid = await bcrypt.compare(password, user.password);
         if (!passwordIsValid) {
-            res.status(401).json({error: 'Mot de passe incorrect'});
+            res.status(401).json({error: 'Mot de passe incorrect.'});
             return;
         }
 
         const token = jwt.sign(
-            {id: user.id, nom: user.nom},
+            {id: user.id, email: user.email, role: user.role},
             SECRET_KEY,
             {expiresIn: '1h'}
         );
-        //res.header('Authorization', token);
-        res.status(200).json({message: "Connexion réussie !", data: {token, user}});
+
+        res.status(200).json({
+            message: 'Connexion réussie.',
+            data: {
+                token,
+                user: {
+                    id: user.id,
+                    lastname: user.lastname,
+                    firstname: user.firstname,
+                    email: user.email,
+                    role: user.role,
+                    dateOfBirth: user.dateOfBirth
+                },
+            },
+        });
     } catch (error: any) {
-        res.status(500).json({error: "Erreur lors de la connexion", details: error.message});
+        res.status(500).json({error: "Erreur lors de la connexion.", details: error.message});
     }
 };

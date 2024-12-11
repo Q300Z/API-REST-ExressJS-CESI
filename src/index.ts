@@ -1,7 +1,8 @@
 import express, {Request, Response} from 'express';
 import userRoutes from "./routes/user.routes";
-import articleRoutes from "./routes/article.routes";
+import eventRoutes from "./routes/event.routes";
 import authRoutes from "./routes/auth.routes";
+import participantRoutes from "./routes/participant.routes";
 import {logger} from "./middlewares/logger.middleware";
 import {authenticateJWT} from "./middlewares/auth.middleware";
 import prisma from "./utils/prisma";
@@ -37,7 +38,8 @@ async function main() {
     });
 
     app.use('/api', userRoutes);
-    app.use('/api', articleRoutes);
+    app.use('/api', eventRoutes);
+    app.use('/api',participantRoutes);
     app.use('/auth', authRoutes);
 
 

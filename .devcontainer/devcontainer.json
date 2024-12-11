@@ -1,6 +1,6 @@
 // See https://containers.dev/implementors/json_reference/ for configuration reference
 {
-	"name": "09-12-2024_bases_de_nodejs-prisma",
+	"name": "09-12-2024_bases_de_nodejs-mini-projet",
 	"build": {
 		"dockerfile": "Dockerfile"
 	},

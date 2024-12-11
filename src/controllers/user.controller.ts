@@ -5,9 +5,7 @@ import prisma from '../utils/prisma';
 // READ: Récupérer tous les utilisateurs
 export const getAllUsers = async (_req: Request, res: Response): Promise<void> => {
     try {
-        const users = await prisma.user.findMany({
-            include: {Article: true},
-        });
+        const users = await prisma.user.findMany();
         res.json(users);
     } catch (error: any) {
         res.status(500).json({error: 'Erreur lors de la récupération des utilisateurs', details: error.message});
@@ -20,8 +18,7 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
 
     try {
         const user = await prisma.user.findUnique({
-            where: {id},
-            include: {Article: true},
+            where: {id}
         });
         if (!user) {
             res.status(404).json({error: 'Utilisateur non trouvé'});
@@ -36,12 +33,12 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
 // UPDATE: Modifier un utilisateur
 export const updateUser = async (req: Request, res: Response): Promise<void> => {
     const id = req.params.id;
-    const {nom, prenom, password} = req.body;
+    const {lastname, firstname, password} = req.body;
 
     try {
         const updatedUser = await prisma.user.update({
             where: {id},
-            data: {nom, prenom, password},
+            data: {lastname, firstname, password},
         });
         res.json({message: 'Utilisateur mis à jour avec succès', data: updatedUser});
     } catch (error: any) {

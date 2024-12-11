@@ -1,20 +1,23 @@
-import e, {NextFunction, Request, Response} from 'express';
+import {NextFunction, Request, Response} from 'express';
 import jwt from 'jsonwebtoken';
 
 const SECRET_KEY = process.env.SECRET_KEY || 'your_secret_key'; // Remplace par une clé secrète sécurisée pour la production
 
 export const authenticateJWT = (req: Request, res: Response, next: NextFunction): void => {
-    // exclure les routes qui ne nécessitent pas d'authentification
-    if (req.path === '/auth/login' || req.path === '/auth/register') {
+    // Exclure les routes qui ne nécessitent pas d'authentification
+    const openRoutes = ['/auth/login', '/auth/register'];
+    if (openRoutes.includes(req.path)) {
         next();
         return;
     }
-    const token = req.headers['authorization'];
+    const tokenHeader = req.headers['authorization'];
 
-    if (!token) {
-        res.status(401).json({error: 'Token manquant'});
+    if (!tokenHeader || !tokenHeader.startsWith('Bearer ')) {
+        res.status(401).json({ error: 'Authorization header manquant ou mal formé.' });
         return;
     }
+
+    const token = tokenHeader.split(' ')[1]; // Extraire le token après "Bearer"
 
     try {
         (req as any).user = jwt.verify(token as string, SECRET_KEY); // Attache les infos de l'utilisateur au request
