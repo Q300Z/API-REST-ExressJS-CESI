@@ -5,6 +5,8 @@ import authRoutes from "./routes/auth.routes";
 import {logger} from "./middlewares/logger.middleware";
 import {authenticateJWT} from "./middlewares/auth.middleware";
 import prisma from "./utils/prisma";
+import helmet from "helmet";
+import {rateLimit} from 'express-rate-limit';
 
 async function main() {
     const app = express();
@@ -12,6 +14,20 @@ async function main() {
 
 // Middleware pour parser les requêtes JSON
     app.use(express.json());
+    app.use(helmet())
+
+    // Configurez un rate limiter pour limiter les requêtes sur une période donnée
+    const limiter = rateLimit({
+        windowMs: 1 * 60 * 1000, // 1 heure (en millisecondes)
+        limit: 100, // Limite à 100 requêtes par IP dans la fenêtre
+        message: 'Trop de requêtes de votre part, veuillez réessayer après 1 heure.',
+        standardHeaders: true, // Pour inclure des informations sur le limiteur dans les en-têtes
+    });
+
+// Appliquer le rate limiter à toutes les requêtes
+    app.use(limiter);
+
+
     app.use(authenticateJWT)
     app.use(logger);
 
