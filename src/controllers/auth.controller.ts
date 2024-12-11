@@ -65,7 +65,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
             SECRET_KEY,
             {expiresIn: '1h'}
         );
-
+        //res.header('Authorization', token);
         res.status(200).json({message: "Connexion réussie !", data: {token, user}});
     } catch (error: any) {
         res.status(500).json({error: "Erreur lors de la connexion", details: error.message});

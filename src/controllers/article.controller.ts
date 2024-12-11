@@ -33,38 +33,82 @@ export const createArticle = async (req: Request, res: Response): Promise<void> 
     }
 };
 
-// READ: Récupérer tous les articles
-export const getAllArticles = async (_req: Request, res: Response): Promise<void> => {
-    try {
-        const articles = await prisma.article.findMany({
-            include: {user: true},
-        });
-        res.json(articles);
-    } catch (error: any) {
-        res.status(500).json({error: "Erreur lors de la récupération des articles", details: error.message});
-    }
-};
-
-// READ: Récupérer les articles d'un utilisateur
-export const getArticlesByUserId = async (req: Request, res: Response): Promise<void> => {
-    const userId = req.params.userId;
+// READ: Récupérer tous les articles avec pagination
+export const getAllArticles = async (req: Request, res: Response): Promise<void> => {
+    const page = parseInt(req.query.page as string) || 1;  // Page courante (par défaut 1)
+    const pageSize = parseInt(req.query.pageSize as string) || 100;  // Nombre d'articles par page (par défaut 10)
 
     try {
-        const userArticles = await prisma.article.findMany({
-            where: {userId},
-            include: {user: true},
-        });
+        // Compter le nombre total d'articles
+        const articleTotal = await prisma.article.count();
 
-        if (userArticles.length === 0) {
-            res.status(404).json({error: "Aucun article trouvé pour cet utilisateur"});
+        // Calculer le nombre total de pages
+        const pageTotal = Math.ceil(articleTotal / pageSize);
+
+        // Vérifier si la page demandée existe
+        if (page > pageTotal) {
+            res.status(400).json({ error: `La page ${page} n'existe pas. Il y a seulement ${pageTotal} pages.` });
             return;
         }
 
-        res.json({data: userArticles});
+        const articles = await prisma.article.findMany({
+            include: { user: false },
+            skip: (page - 1) * pageSize,  // Calculer l'index de départ
+            take: pageSize,  // Limiter le nombre d'articles récupérés
+        });
+
+        // Vérification si des articles existent pour la page demandée
+        if (articles.length === 0) {
+            res.status(404).json({ error: 'Aucun article trouvé.' });
+            return;
+        }
+
+        res.json({ data: articles, metadata:{page, pageSize,pageTotal,articleTotal} });
     } catch (error: any) {
-        res.status(500).json({error: "Erreur lors de la récupération des articles", details: error.message});
+        res.status(500).json({ error: 'Erreur lors de la récupération des articles', details: error.message });
     }
 };
+
+
+// READ: Récupérer les articles d'un utilisateur avec pagination
+export const getArticlesByUserId = async (req: Request, res: Response): Promise<void> => {
+    const userId = req.params.userId;
+    const page = parseInt(req.query.page as string) || 1;  // Page courante (par défaut 1)
+    const pageSize = parseInt(req.query.pageSize as string) || 100;  // Nombre d'articles par page (par défaut 10)
+
+    try {
+        // Compter le nombre total d'articles pour l'utilisateur
+        const articleTotal = await prisma.article.count({
+            where: { userId },
+        });
+
+        // Calculer le nombre total de pages
+        const pageTotal = Math.ceil(articleTotal / pageSize);
+
+        // Vérifier si la page demandée existe
+        if (page > pageTotal) {
+            res.status(400).json({ error: `La page ${page} n'existe pas pour cet utilisateur. Il y a seulement ${pageTotal} pages.` });
+            return;
+        }
+
+        const userArticles = await prisma.article.findMany({
+            where: { userId },
+            include: { user: false },
+            skip: (page - 1) * pageSize,  // Calculer l'index de départ
+            take: pageSize,  // Limiter le nombre d'articles récupérés
+        });
+
+        if (userArticles.length === 0) {
+            res.status(404).json({ error: 'Aucun article trouvé pour cet utilisateur' });
+            return;
+        }
+
+        res.json({ data: userArticles, metadata:{page, pageSize,pageTotal,articleTotal} });
+    } catch (error: any) {
+        res.status(500).json({ error: 'Erreur lors de la récupération des articles', details: error.message });
+    }
+};
+
 
 // READ: Récupérer un article par son ID
 export const getArticleById = async (req: Request, res: Response): Promise<void> => {
