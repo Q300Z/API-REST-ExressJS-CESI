@@ -7,6 +7,7 @@ import redis from '../utils/redis';
 // 1. Création d'un événement
 export const createEvent = async (req: Request, res: Response): Promise<void> => {
     const {name, sport, date, location, description} = req.body;
+    const file = (req as any).file;
 
     if (!name || !sport || !date || !location) {
         res.status(400).json({error: 'Les champs name, sport, date et location sont obligatoires.'});
@@ -15,7 +16,7 @@ export const createEvent = async (req: Request, res: Response): Promise<void> =>
 
     try {
         const newEvent = await prisma.event.create({
-            data: {name, sport, date, location, description,userId:(req as any).user.id},
+            data: {name, sport, date, location, description,userId:(req as any).user.id,image: file ? file : null},
         });
 
         await redis.del('events_list'); // Invalider le cache des événements

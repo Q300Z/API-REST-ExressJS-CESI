@@ -4,6 +4,7 @@ export interface Event {
     sport: string;
     date: Date;
     location: string;
+    image?: string;
     description?: string;
     createdAt: Date;
     updatedAt: Date;

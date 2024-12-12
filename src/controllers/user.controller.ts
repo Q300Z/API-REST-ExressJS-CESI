@@ -33,12 +33,16 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
 // UPDATE: Modifier un utilisateur
 export const updateUser = async (req: Request, res: Response): Promise<void> => {
     const id = req.params.id;
-    const {lastname, firstname, password} = req.body;
+    const {lastname, firstname, password,role} = req.body;
 
     try {
+        if(role !== 'admin' && role !== 'user'){
+            res.status(400).json({error: 'Le rôle doit être `admin` ou `user`'});
+        }
+
         const updatedUser = await prisma.user.update({
             where: {id},
-            data: {lastname, firstname, password},
+            data: {lastname, firstname, password,role},
         });
         res.json({message: 'Utilisateur mis à jour avec succès', data: updatedUser});
     } catch (error: any) {

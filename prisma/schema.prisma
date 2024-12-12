@@ -25,6 +25,7 @@ model User {
   updatedAt        DateTime           @updatedAt @db.Timestamp()
   Event            Event[]
   EventParticipant EventParticipant[]
+  Result           Result[]
 }
 
 model Event {
@@ -34,11 +35,13 @@ model Event {
   description      String?            @db.Text()
   date             DateTime           @db.Date()
   location         String             @db.VarChar(255)
+  image            String?            @db.VarChar(255)
   user             User               @relation(fields: [userId], references: [id])
   userId           String             @db.Uuid()
   createdAt        DateTime           @default(now()) @db.Timestamp()
   updatedAt        DateTime           @updatedAt @db.Timestamp()
   EventParticipant EventParticipant[]
+  Result           Result[]
 }
 
 model EventParticipant {
@@ -53,4 +56,17 @@ model EventParticipant {
   performance      String?  @db.VarChar(255)
   createdAt        DateTime @default(now()) @db.Timestamp()
   updatedAt        DateTime @updatedAt @db.Timestamp()
+}
+
+model Result {
+  id          String   @id @default(uuid()) @db.Uuid()
+  event       Event    @relation(fields: [eventId], references: [id])
+  eventId     String   @db.Uuid()
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String   @db.Uuid()
+  score       Int?     @db.Integer() // Score du participant (ex: temps, points, etc.)
+  position    Int?     @db.Integer() // Position dans le classement
+  description String?  @db.Text() // Informations complémentaires sur le résultat
+  createdAt   DateTime @default(now()) @db.Timestamp()
+  updatedAt   DateTime @updatedAt @db.Timestamp()
 }

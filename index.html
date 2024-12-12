@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créer un événement</title>
+</head>
+<body>
+<h1>Créer un nouvel événement</h1>
+<form action="http://localhost:3000/api/events" method="POST" enctype="multipart/form-data">
+    <!-- Nom de l'événement -->
+    <label for="name">Nom de l'événement :</label>
+    <input type="text" id="name" name="name" required>
+    <br><br>
+
+    <!-- Sport -->
+    <label for="sport">Sport :</label>
+    <input type="text" id="sport" name="sport" required>
+    <br><br>
+
+    <!-- Date -->
+    <label for="date">Date :</label>
+    <input type="date" id="date" name="date" required>
+    <br><br>
+
+    <!-- Localisation -->
+    <label for="location">Localisation :</label>
+    <input type="text" id="location" name="location" required>
+    <br><br>
+
+    <!-- Description -->
+    <label for="description">Description (optionnel) :</label>
+    <textarea id="description" name="description"></textarea>
+    <br><br>
+
+    <!-- Image -->
+    <label for="image">Image de l'événement :</label>
+    <input type="file" id="image" name="image" accept="image/*">
+    <br><br>
+
+    <!-- Bouton soumettre -->
+    <button type="submit">Créer l'événement</button>
+</form>
+</body>
+</html>

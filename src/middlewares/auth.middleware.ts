@@ -10,6 +10,7 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
         next();
         return;
     }
+
     const tokenHeader = req.headers['authorization'];
 
     if (!tokenHeader || !tokenHeader.startsWith('Bearer ')) {
@@ -27,3 +28,12 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
         return;
     }
 };
+
+
+export const isAdmin = (req: Request, res: Response, next: NextFunction): void => {
+    const {role} = (req as any).user;
+    if (role !== 'admin') {
+        res.status(403).json({error: 'Accès interdit'});
+        return;
+    }
+}

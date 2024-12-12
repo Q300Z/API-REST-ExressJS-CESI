@@ -29,7 +29,7 @@ async function main() {
     app.use(limiter);
 
 
-    app.use(authenticateJWT)
+    //app.use(authenticateJWT)
     app.use(logger);
 
 // Route de base
