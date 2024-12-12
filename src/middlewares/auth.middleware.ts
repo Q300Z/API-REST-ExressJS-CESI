@@ -1,7 +1,7 @@
 import {NextFunction, Request, Response} from 'express';
 import jwt from 'jsonwebtoken';
 
-const SECRET_KEY = process.env.SECRET_KEY || 'your_secret_key'; // Remplace par une clé secrète sécurisée pour la production
+const SECRET_KEY = process.env.SECRET_KEY || 'defaultsKey'; // Remplace par une clé secrète sécurisée pour la production
 
 export const authenticateJWT = (req: Request, res: Response, next: NextFunction): void => {
     // Exclure les routes qui ne nécessitent pas d'authentification
@@ -14,7 +14,7 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
     const tokenHeader = req.headers['authorization'];
 
     if (!tokenHeader || !tokenHeader.startsWith('Bearer ')) {
-        res.status(401).json({ error: 'Authorization header manquant ou mal formé.' });
+        res.status(401).json({error: 'Authorization header manquant ou mal formé.'});
         return;
     }
 

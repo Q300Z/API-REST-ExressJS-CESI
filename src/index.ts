@@ -1,21 +1,35 @@
-import express, {Request, Response} from 'express';
+import express, {NextFunction, Request, Response} from 'express';
 import userRoutes from "./routes/user.routes";
 import eventRoutes from "./routes/event.routes";
 import authRoutes from "./routes/auth.routes";
 import participantRoutes from "./routes/participant.routes";
 import {logger} from "./middlewares/logger.middleware";
-import {authenticateJWT} from "./middlewares/auth.middleware";
 import prisma from "./utils/prisma";
 import helmet from "helmet";
+import cors from "cors";
+import compression from "compression";
 import {rateLimit} from 'express-rate-limit';
+import swaggerUi from 'swagger-ui-express';
+import yaml from 'yamljs';
+import path from "node:path";
+import {authenticateJWT} from "./middlewares/auth.middleware";
 
 async function main() {
     const app = express();
     const port = 3000;
 
-// Middleware pour parser les requêtes JSON
+    // Charger le fichier Swagger YAML
+    const swaggerDocument = yaml.load(path.join(__dirname, 'swagger.yaml'));
+
+    // Utiliser Swagger UI pour afficher la documentation
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+
+    // Middleware pour parser les requêtes JSON
     app.use(express.json());
     app.use(helmet())
+    app.use(cors());
+    app.use(compression());
 
     // Configurez un rate limiter pour limiter les requêtes sur une période donnée
     const limiter = rateLimit({
@@ -29,7 +43,7 @@ async function main() {
     app.use(limiter);
 
 
-    //app.use(authenticateJWT)
+    app.use(authenticateJWT)
     app.use(logger);
 
 // Route de base
@@ -39,9 +53,8 @@ async function main() {
 
     app.use('/api', userRoutes);
     app.use('/api', eventRoutes);
-    app.use('/api',participantRoutes);
+    app.use('/api', participantRoutes);
     app.use('/auth', authRoutes);
-
 
 // Lancer le serveur
     app.listen(port, () => {

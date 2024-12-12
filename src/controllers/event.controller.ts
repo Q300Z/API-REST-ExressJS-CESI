@@ -2,6 +2,8 @@ import {Request, Response} from 'express';
 import prisma from '../utils/prisma';
 import redis from '../utils/redis';
 
+
+const CACHE_EXPIRE = Number.parseInt(String(process.env.CACHE_EXPIRE || 3600));
 // Gestion des événements sportifs
 
 // 1. Création d'un événement
@@ -16,7 +18,7 @@ export const createEvent = async (req: Request, res: Response): Promise<void> =>
 
     try {
         const newEvent = await prisma.event.create({
-            data: {name, sport, date, location, description,userId:(req as any).user.id,image: file ? file : null},
+            data: {name, sport, date, location, description, userId: (req as any).user.id, image: file ? file : null},
         });
 
         await redis.del('events_list'); // Invalider le cache des événements
@@ -40,7 +42,7 @@ export const getAllEvents = async (req: Request, res: Response): Promise<void> =
 
         const events = await prisma.event.findMany();
 
-        await redis.set(cacheKey, JSON.stringify(events), 'EX', 3600); // Cache pour 1h
+        await redis.set(cacheKey, JSON.stringify(events), 'EX', CACHE_EXPIRE); // Cache pour 1h
 
         res.json(events);
     } catch (error: any) {
@@ -154,7 +156,7 @@ export const getEventParticipants = async (req: Request, res: Response): Promise
             include: {user: true},
         });
 
-        await redis.set(cacheKey, JSON.stringify(participants), 'EX', 3600); // Cache pour 1h
+        await redis.set(cacheKey, JSON.stringify(participants), 'EX', CACHE_EXPIRE); // Cache pour 1h
 
         res.json(participants);
     } catch (error: any) {

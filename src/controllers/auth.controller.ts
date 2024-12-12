@@ -3,13 +3,13 @@ import jwt from 'jsonwebtoken';
 import prisma from '../utils/prisma';
 import bcrypt from 'bcryptjs';
 
-const SECRET_KEY = process.env.SECRET_KEY || 'your_secret_key'; // Veillez à définir une clé sécurisée dans vos variables d'environnement
+const SECRET_KEY = process.env.SECRET_KEY || 'defaultsKey';
+const SECRET_KEY_SALT = Number.parseInt(String(process.env.SECRET_KEY_SALT || 10));
 
 // Inscription
 export const register = async (req: Request, res: Response): Promise<void> => {
-    const {lastname, firstname, email, password,dateOfBirth} = req.body;
-
-    if (!lastname || !firstname || !email || !password||!dateOfBirth) {
+    const {lastname, firstname, email, password, dateOfBirth} = req.body;
+    if (!lastname || !firstname || !email || !password || !dateOfBirth) {
         res.status(400).json({error: 'Tous les champs (lastname, firstname, email, password, dateOfBirth) sont requis.'});
         return;
     }
@@ -21,7 +21,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
             return;
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, SECRET_KEY_SALT);
 
         const newUser = await prisma.user.create({
             data: {
@@ -33,7 +33,10 @@ export const register = async (req: Request, res: Response): Promise<void> => {
             },
         });
 
-        res.status(201).json({message: 'Utilisateur créé avec succès.', data: {id: newUser.id, email: newUser.email,password}});
+        res.status(201).json({
+            message: 'Utilisateur créé avec succès.',
+            data: {id: newUser.id, email: newUser.email, password}
+        });
     } catch (error: any) {
         res.status(500).json({error: "Erreur lors de l'inscription.", details: error.message});
     }
@@ -42,7 +45,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 // Connexion
 export const login = async (req: Request, res: Response): Promise<void> => {
     const {email, password} = req.body;
-
+    console.log(SECRET_KEY)
     if (!email || !password) {
         res.status(400).json({error: 'Email et mot de passe sont requis.'});
         return;

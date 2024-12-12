@@ -1,6 +1,7 @@
 import {Request, Response} from 'express';
 import prisma from '../utils/prisma';
 import redis from '../utils/redis';
+const CACHE_EXPIRE = Number.parseInt(String(process.env.CACHE_EXPIRE || 3600));
 
 export const registerForEvent = async (req: Request, res: Response): Promise<void> => {
     const {eventId} = req.params;
@@ -81,7 +82,7 @@ export const getParticipantsByEvent = async (req: Request, res: Response): Promi
             await redis.set(participantsCacheKey, JSON.stringify({
                 data: participants,
                 metadata: {participantCount: participants.length},
-            }), 'EX', 3600);
+            }), 'EX', CACHE_EXPIRE);
         }
 
         const result = {

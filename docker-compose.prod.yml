@@ -1,0 +1,57 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api
+    restart: always
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+    volumes:
+      - api_prod:/app/uploads
+    depends_on:
+        - postgre
+        - redis
+    networks:
+      - api-network
+  postgre:
+    image: postgres:latest
+    restart: always
+    container_name: postgre
+    env_file:
+          - .env
+    volumes:
+      - postgre_prod:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - api-network
+
+  redis:
+    image: redis:latest
+    restart: always
+    container_name: redis
+    volumes:
+      - redis_prod:/data
+    healthcheck:
+        test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+    networks:
+      - api-network
+volumes:
+  postgre_prod:
+  redis_prod:
+  api_prod:
+networks:
+  api-network:

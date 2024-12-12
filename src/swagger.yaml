@@ -1,0 +1,773 @@
+openapi: 3.1.0
+info:
+  title: Swagger Mini_Projet
+  description: Swagger de l'api Mini_Projet
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:3000'
+    description: Serveur de développement
+paths:
+  /users:
+    get:
+      summary: Récupérer tous les utilisateurs
+      description: Permet de récupérer la liste de tous les utilisateurs.
+      operationId: getAllUsers
+      responses:
+        '200':
+          description: Liste des utilisateurs récupérée avec succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: "uuid-1234-5678-9101"
+                    lastname:
+                      type: string
+                      example: "Doe"
+                    firstname:
+                      type: string
+                      example: "John"
+                    email:
+                      type: string
+                      example: "john.doe@example.com"
+                    role:
+                      type: string
+                      example: "user"
+                    dateOfBirth:
+                      type: string
+                      format: date
+                      example: "1990-01-01"
+        '500':
+          description: Erreur lors de la récupération des utilisateurs
+
+  /users/{id}:
+    get:
+      summary: Récupérer un utilisateur par ID
+      description: Permet de récupérer les informations d'un utilisateur spécifique à partir de son ID.
+      operationId: getUserById
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: L'ID de l'utilisateur à récupérer
+      responses:
+        '200':
+          description: Utilisateur récupéré avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "uuid-1234-5678-9101"
+                  lastname:
+                    type: string
+                    example: "Doe"
+                  firstname:
+                    type: string
+                    example: "John"
+                  email:
+                    type: string
+                    example: "john.doe@example.com"
+                  role:
+                    type: string
+                    example: "user"
+                  dateOfBirth:
+                    type: string
+                    format: date
+                    example: "1990-01-01"
+        '404':
+          description: Utilisateur non trouvé
+        '500':
+          description: Erreur lors de la récupération de l'utilisateur
+
+    put:
+      summary: Modifier un utilisateur
+      description: Permet de mettre à jour les informations d'un utilisateur spécifique.
+      operationId: updateUser
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: L'ID de l'utilisateur à modifier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lastname:
+                  type: string
+                  example: "Doe"
+                firstname:
+                  type: string
+                  example: "John"
+                password:
+                  type: string
+                  example: "newpassword123"
+                role:
+                  type: string
+                  enum:
+                    - "user"
+                    - "admin"
+                  example: "admin"
+      responses:
+        '200':
+          description: Utilisateur mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Utilisateur mis à jour avec succès"
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "uuid-1234-5678-9101"
+                      lastname:
+                        type: string
+                        example: "Doe"
+                      firstname:
+                        type: string
+                        example: "John"
+                      email:
+                        type: string
+                        example: "john.doe@example.com"
+                      role:
+                        type: string
+                        example: "admin"
+                      dateOfBirth:
+                        type: string
+                        format: date
+                        example: "1990-01-01"
+        '400':
+          description: Le rôle doit être "user" ou "admin"
+        '404':
+          description: Utilisateur non trouvé
+        '500':
+          description: Erreur lors de la mise à jour de l'utilisateur
+
+    delete:
+      summary: Supprimer un utilisateur
+      description: Permet de supprimer un utilisateur spécifique à partir de son ID.
+      operationId: deleteUser
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: L'ID de l'utilisateur à supprimer
+      responses:
+        '204':
+          description: Utilisateur supprimé avec succès
+        '404':
+          description: Utilisateur non trouvé
+        '500':
+          description: Erreur lors de la suppression de l'utilisateur
+
+  /results:
+    post:
+      summary: Création d'un résultat pour un événement
+      description: Permet d'ajouter un résultat pour un événement spécifique.
+      operationId: createResult
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - eventId
+                - userId
+              properties:
+                eventId:
+                  type: string
+                  example: "uuid-1234-5678-9101"
+                userId:
+                  type: string
+                  example: "uuid-5678-9101-1234"
+                score:
+                  type: number
+                  example: 100
+                position:
+                  type: integer
+                  example: 1
+                description:
+                  type: string
+                  example: "Un excellent match avec une performance exceptionnelle."
+      responses:
+        '201':
+          description: Résultat ajouté avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Résultat ajouté avec succès."
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "uuid-1234-5678-9101"
+                      eventId:
+                        type: string
+                        example: "uuid-1234-5678-9101"
+                      userId:
+                        type: string
+                        example: "uuid-5678-9101-1234"
+                      score:
+                        type: number
+                        example: 100
+                      position:
+                        type: integer
+                        example: 1
+                      description:
+                        type: string
+                        example: "Un excellent match avec une performance exceptionnelle."
+        '400':
+          description: Champs manquants ou invalides
+        '500':
+          description: Erreur interne du serveur
+
+  /results/{eventId}:
+    get:
+      summary: Liste des résultats d'un événement
+      description: Permet de récupérer tous les résultats d'un événement spécifique.
+      operationId: getResultsByEvent
+      parameters:
+        - in: path
+          name: eventId
+          required: true
+          schema:
+            type: string
+          description: L'ID de l'événement pour lequel récupérer les résultats
+      responses:
+        '200':
+          description: Liste des résultats de l'événement
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: "uuid-1234-5678-9101"
+                        eventId:
+                          type: string
+                          example: "uuid-1234-5678-9101"
+                        userId:
+                          type: string
+                          example: "uuid-5678-9101-1234"
+                        score:
+                          type: number
+                          example: 100
+                        position:
+                          type: integer
+                          example: 1
+                        description:
+                          type: string
+                          example: "Un excellent match avec une performance exceptionnelle."
+        '500':
+          description: Erreur lors de la récupération des résultats
+
+    put:
+      summary: Mise à jour d'un résultat
+      description: Permet de mettre à jour un résultat existant pour un utilisateur dans un événement.
+      operationId: updateResult
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: L'ID du résultat à mettre à jour
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                score:
+                  type: number
+                  example: 95
+                position:
+                  type: integer
+                  example: 2
+                description:
+                  type: string
+                  example: "Bien joué, mais pourrait faire mieux."
+      responses:
+        '200':
+          description: Résultat mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Résultat mis à jour avec succès."
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "uuid-1234-5678-9101"
+                      eventId:
+                        type: string
+                        example: "uuid-1234-5678-9101"
+                      userId:
+                        type: string
+                        example: "uuid-5678-9101-1234"
+                      score:
+                        type: number
+                        example: 95
+                      position:
+                        type: integer
+                        example: 2
+                      description:
+                        type: string
+                        example: "Bien joué, mais pourrait faire mieux."
+        '500':
+          description: Erreur lors de la mise à jour du résultat
+
+  /events:
+    post:
+      summary: Création d'un événement sportif
+      description: Permet de créer un nouvel événement sportif en fournissant les informations nécessaires.
+      operationId: createEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - sport
+                - date
+                - location
+              properties:
+                name:
+                  type: string
+                  example: "Tournoi de football"
+                sport:
+                  type: string
+                  example: "Football"
+                date:
+                  type: string
+                  format: date-time
+                  example: "2024-12-15T10:00:00Z"
+                location:
+                  type: string
+                  example: "Stade Pierre-Mauroy"
+                description:
+                  type: string
+                  example: "Un tournoi de football amical."
+      responses:
+        '201':
+          description: Événement créé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Événement créé avec succès."
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "uuid-1234-5678-9101"
+                      name:
+                        type: string
+                        example: "Tournoi de football"
+                      sport:
+                        type: string
+                        example: "Football"
+                      date:
+                        type: string
+                        format: date-time
+                        example: "2024-12-15T10:00:00Z"
+                      location:
+                        type: string
+                        example: "Stade Pierre-Mauroy"
+        '400':
+          description: Erreur de validation des données
+        '500':
+          description: Erreur interne du serveur
+
+    get:
+      summary: Liste des événements sportifs
+      description: Permet de récupérer la liste de tous les événements sportifs.
+      operationId: getAllEvents
+      responses:
+        '200':
+          description: Liste des événements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: "uuid-1234-5678-9101"
+                    name:
+                      type: string
+                      example: "Tournoi de football"
+                    sport:
+                      type: string
+                      example: "Football"
+                    date:
+                      type: string
+                      format: date-time
+                      example: "2024-12-15T10:00:00Z"
+                    location:
+                      type: string
+                      example: "Stade Pierre-Mauroy"
+        '500':
+          description: Erreur lors de la récupération des événements
+
+  /events/{id}:
+    get:
+      summary: Détail d'un événement
+      description: Permet de récupérer les détails d'un événement spécifique en fonction de son ID.
+      operationId: getEventById
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: L'ID de l'événement à récupérer
+      responses:
+        '200':
+          description: Détails de l'événement
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "uuid-1234-5678-9101"
+                  name:
+                    type: string
+                    example: "Tournoi de football"
+                  sport:
+                    type: string
+                    example: "Football"
+                  date:
+                    type: string
+                    format: date-time
+                    example: "2024-12-15T10:00:00Z"
+                  location:
+                    type: string
+                    example: "Stade Pierre-Mauroy"
+        '404':
+          description: Événement non trouvé
+        '500':
+          description: Erreur lors de la récupération de l'événement
+    put:
+      summary: Mise à jour d'un événement sportif
+      description: Permet de mettre à jour un événement existant en fournissant les nouvelles informations.
+      operationId: updateEvent
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: L'ID de l'événement à mettre à jour
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Tournoi de football"
+                sport:
+                  type: string
+                  example: "Football"
+                date:
+                  type: string
+                  format: date-time
+                  example: "2024-12-15T10:00:00Z"
+                location:
+                  type: string
+                  example: "Stade Pierre-Mauroy"
+                description:
+                  type: string
+                  example: "Un tournoi de football amical."
+      responses:
+        '200':
+          description: Événement mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Événement mis à jour avec succès."
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "uuid-1234-5678-9101"
+        '404':
+          description: Événement non trouvé
+        '500':
+          description: Erreur lors de la mise à jour de l'événement
+    delete:
+      summary: Suppression d'un événement sportif
+      description: Permet de supprimer un événement sportif en fonction de son ID.
+      operationId: deleteEvent
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: L'ID de l'événement à supprimer
+      responses:
+        '204':
+          description: Événement supprimé avec succès
+        '404':
+          description: Événement non trouvé
+        '500':
+          description: Erreur lors de la suppression de l'événement
+
+  /events/register:
+    post:
+      summary: Inscription d'un participant à un événement
+      description: Permet d'inscrire un participant à un événement spécifique.
+      operationId: registerParticipant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - eventId
+                - userId
+              properties:
+                eventId:
+                  type: string
+                  example: "uuid-1234-5678-9101"
+                userId:
+                  type: string
+                  example: "uuid-5678-9101-1234"
+      responses:
+        '201':
+          description: Participant inscrit avec succès
+        '400':
+          description: Champs manquants ou invalides
+        '500':
+          description: Erreur lors de l'inscription du participant
+
+  /events/{eventId}/participants:
+    get:
+      summary: Liste des participants d'un événement
+      description: Permet de récupérer la liste des participants d'un événement spécifique.
+      operationId: getEventParticipants
+      parameters:
+        - in: path
+          name: eventId
+          required: true
+          schema:
+            type: string
+          description: L'ID de l'événement
+      responses:
+        '200':
+          description: Liste des participants de l'événement
+        '500':
+          description: Erreur lors de la récupération des participants
+
+  /events/participants/{id}/cancel:
+    post:
+      summary: Annulation d'une inscription à un événement
+      description: Permet d'annuler l'inscription d'un participant à un événement.
+      operationId: cancelRegistration
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: L'ID de l'inscription à annuler
+      responses:
+        '200':
+          description: Inscription annulée avec succès
+        '404':
+          description: Inscription non trouvée
+        '500':
+          description: Erreur lors de l'annulation de l'inscription
+
+  /auth/register:
+    post:
+      summary: Inscription d'un nouvel utilisateur
+      description: Permet à un utilisateur de s'inscrire en fournissant les informations nécessaires.
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - lastname
+                - firstname
+                - email
+                - password
+                - dateOfBirth
+              properties:
+                lastname:
+                  type: string
+                  example: "Dupont"
+                firstname:
+                  type: string
+                  example: "Jean"
+                email:
+                  type: string
+                  format: email
+                  example: "jean.dupont@example.com"
+                password:
+                  type: string
+                  format: password
+                  example: "password123"
+                dateOfBirth:
+                  type: string
+                  format: date
+                  example: "1990-01-01"
+      responses:
+        '201':
+          description: Utilisateur créé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Utilisateur créé avec succès."
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "uuid-1234-5678-9101"
+                      email:
+                        type: string
+                        example: "jean.dupont@example.com"
+                      password:
+                        type: string
+                        example: "password123"
+        '400':
+          description: Erreur de validation des données
+        '409':
+          description: Un utilisateur avec cet email existe déjà
+        '500':
+          description: Erreur interne du serveur
+
+  /auth/login:
+    post:
+      summary: Connexion d'un utilisateur existant
+      description: Permet à un utilisateur de se connecter avec son email et mot de passe.
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "jean.dupont@example.com"
+                password:
+                  type: string
+                  format: password
+                  example: "password123"
+      responses:
+        '200':
+          description: Connexion réussie avec un token JWT
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Connexion réussie."
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: "jwt-token-example"
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            example: "uuid-1234-5678-9101"
+                          lastname:
+                            type: string
+                            example: "Dupont"
+                          firstname:
+                            type: string
+                            example: "Jean"
+                          email:
+                            type: string
+                            example: "jean.dupont@example.com"
+                          role:
+                            type: string
+                            example: "USER"
+                          dateOfBirth:
+                            type: string
+                            format: date
+                            example: "1990-01-01"
+        '400':
+          description: Email ou mot de passe manquant
+        '401':
+          description: Identifiants incorrects
+        '500':
+          description: Erreur interne du serveur
