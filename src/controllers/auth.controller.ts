@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 
 const SECRET_KEY = process.env.SECRET_KEY || 'defaultsKey';
 const SECRET_KEY_SALT = Number.parseInt(String(process.env.SECRET_KEY_SALT || 10));
+const INIT = process.env.INIT || false;
 
 // Inscription
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -20,6 +21,21 @@ export const register = async (req: Request, res: Response): Promise<void> => {
             res.status(409).json({error: 'Un utilisateur avec cet email existe déjà.'});
             return;
         }
+        let role = 'USER';
+
+
+        if (INIT) {
+            // Création d'un utilisateur admin
+            // Vérifier si l'utilisateur est le premier à s'inscrire
+            const users = await prisma.user.findMany();
+            if (users.length > 0) {
+                res.status(403).json({error: 'L\'initialisation a déjà été effectuée.'});
+                return;
+            } else {
+                role = 'ADMIN';
+            }
+        }
+
 
         const hashedPassword = await bcrypt.hash(password, SECRET_KEY_SALT);
 
@@ -29,6 +45,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
                 firstname,
                 email,
                 dateOfBirth,
+                role,
                 password: hashedPassword,
             },
         });
