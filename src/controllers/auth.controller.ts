@@ -2,6 +2,7 @@ import {Request, Response} from 'express';
 import jwt from 'jsonwebtoken';
 import prisma from '../utils/prisma';
 import bcrypt from 'bcryptjs';
+import redis from "../utils/redis";
 
 const SECRET_KEY = process.env.SECRET_KEY || 'defaultsKey';
 const SECRET_KEY_SALT = Number.parseInt(String(process.env.SECRET_KEY_SALT || 10));
@@ -24,7 +25,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         let role = 'USER';
 
 
-        if (INIT) {
+        if (String(INIT).toLowerCase() === 'true') {
             // Création d'un utilisateur admin
             // Vérifier si l'utilisateur est le premier à s'inscrire
             const users = await prisma.user.findMany();
@@ -49,7 +50,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
                 password: hashedPassword,
             },
         });
-
+        await redis.del('users_list');
         res.status(201).json({
             message: 'Utilisateur créé avec succès.',
             data: {id: newUser.id, email: newUser.email, password}
@@ -62,7 +63,6 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 // Connexion
 export const login = async (req: Request, res: Response): Promise<void> => {
     const {email, password} = req.body;
-    console.log(SECRET_KEY)
     if (!email || !password) {
         res.status(400).json({error: 'Email et mot de passe sont requis.'});
         return;

@@ -1,4 +1,4 @@
-#!/bin/sh
+  #!/bin/sh
 
 # shellcheck disable=SC3046
 source .env

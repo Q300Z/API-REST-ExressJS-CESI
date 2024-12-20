@@ -1,5 +1,5 @@
 # Étape 1 : Construction de l'image
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 
 # Créer et définir le répertoire de travail
 WORKDIR /app
@@ -17,7 +17,7 @@ COPY . .
 RUN npx tsc
 
 # Étape 2 : Production
-FROM node:18-alpine AS production
+FROM node:22-alpine AS production
 
 # Créer et définir le répertoire de travail pour l'exécution
 WORKDIR /app

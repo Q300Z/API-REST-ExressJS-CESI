@@ -40,7 +40,7 @@ async function main() {
     });
 
 // Appliquer le rate limiter à toutes les requêtes
-    app.use(limiter);
+    //app.use(limiter);
 
 
     app.use(authenticateJWT)
